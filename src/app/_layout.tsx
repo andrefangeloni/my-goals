@@ -1,19 +1,22 @@
-import "@/libs/dayjs"
-import "@/styles/global.css"
+import '@/libs/dayjs'
+import '@/styles/global.css'
 
-import { Slot } from "expo-router"
-import { StatusBar } from "expo-status-bar"
-import * as SplashScreen from "expo-splash-screen"
-import { GestureHandlerRootView } from "react-native-gesture-handler"
+import { Slot } from 'expo-router'
+import { StatusBar } from 'expo-status-bar'
+import { SQLiteProvider } from 'expo-sqlite/next'
+import * as SplashScreen from 'expo-splash-screen'
+import { GestureHandlerRootView } from 'react-native-gesture-handler'
 
 import {
   useFonts,
   OpenSans_700Bold,
   OpenSans_400Regular,
   OpenSans_600SemiBold,
-} from "@expo-google-fonts/open-sans"
+} from '@expo-google-fonts/open-sans'
 
-import { colors } from "@/styles/colors"
+import { databaseInit } from '@/database/databaseInit'
+
+import { colors } from '@/styles/colors'
 
 SplashScreen.preventAutoHideAsync()
 
@@ -35,7 +38,9 @@ export default function Layout() {
       style={{ flex: 1, backgroundColor: colors.gray[600] }}
     >
       <StatusBar style="light" />
-      <Slot />
+      <SQLiteProvider databaseName="mygoals.db" onInit={databaseInit}>
+        <Slot />
+      </SQLiteProvider>
     </GestureHandlerRootView>
   )
 }

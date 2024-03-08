@@ -1,25 +1,27 @@
 // LIBS
-import { useEffect, useRef, useState } from "react"
-import { Alert, Keyboard, View } from "react-native"
-import { router, useLocalSearchParams } from "expo-router"
-import Bottom from "@gorhom/bottom-sheet"
-import dayjs from "dayjs"
+import { useEffect, useRef, useState } from 'react'
+import { Alert, Keyboard, View } from 'react-native'
+import { router, useLocalSearchParams } from 'expo-router'
+import Bottom from '@gorhom/bottom-sheet'
+import dayjs from 'dayjs'
 
 // COMPONENTS
-import { Input } from "@/components/Input"
-import { Header } from "@/components/Header"
-import { Button } from "@/components/Button"
-import { Loading } from "@/components/Loading"
-import { Progress } from "@/components/Progress"
-import { BackButton } from "@/components/BackButton"
-import { BottomSheet } from "@/components/BottomSheet"
-import { Transactions } from "@/components/Transactions"
-import { TransactionProps } from "@/components/Transaction"
-import { TransactionTypeSelect } from "@/components/TransactionTypeSelect"
+import { Input } from '@/components/Input'
+import { Header } from '@/components/Header'
+import { Button } from '@/components/Button'
+import { Loading } from '@/components/Loading'
+import { Progress } from '@/components/Progress'
+import { BackButton } from '@/components/BackButton'
+import { BottomSheet } from '@/components/BottomSheet'
+import { Transactions } from '@/components/Transactions'
+import { TransactionProps } from '@/components/Transaction'
+import { TransactionTypeSelect } from '@/components/TransactionTypeSelect'
+
+import { useGoalRepository } from '@/database/useGoalRepository'
 
 // UTILS
-import { mocks } from "@/utils/mocks"
-import { currencyFormat } from "@/utils/currencyFormat"
+import { mocks } from '@/utils/mocks'
+import { currencyFormat } from '@/utils/currencyFormat'
 
 type Details = {
   name: string
@@ -30,9 +32,11 @@ type Details = {
 }
 
 export default function Details() {
-  const [amount, setAmount] = useState("")
+  const useGoal = useGoalRepository()
+
+  const [amount, setAmount] = useState('')
   const [isLoading, setIsLoading] = useState(true)
-  const [type, setType] = useState<"up" | "down">("up")
+  const [type, setType] = useState<'up' | 'down'>('up')
   const [goal, setGoal] = useState<Details>({} as Details)
 
   // PARAMS
@@ -47,7 +51,7 @@ export default function Details() {
   function fetchDetails() {
     try {
       if (goalId) {
-        const goal = mocks.goal
+        const goal = useGoal.show(goalId)
         const transactions = mocks.transactions
 
         if (!goal || !transactions) {
@@ -61,7 +65,7 @@ export default function Details() {
           percentage: (goal.current / goal.total) * 100,
           transactions: transactions.map((item) => ({
             ...item,
-            date: dayjs(item.created_at).format("DD/MM/YYYY [às] HH:mm"),
+            date: dayjs(item.created_at).format('DD/MM/YYYY [às] HH:mm'),
           })),
         })
 
@@ -74,25 +78,25 @@ export default function Details() {
 
   async function handleNewTransaction() {
     try {
-      let amountAsNumber = Number(amount.replace(",", "."))
+      let amountAsNumber = Number(amount.replace(',', '.'))
 
       if (isNaN(amountAsNumber)) {
-        return Alert.alert("Erro", "Valor inválido.")
+        return Alert.alert('Erro', 'Valor inválido.')
       }
 
-      if (type === "down") {
+      if (type === 'down') {
         amountAsNumber = amountAsNumber * -1
       }
 
       console.log({ goalId, amount: amountAsNumber })
 
-      Alert.alert("Sucesso", "Transação registrada!")
+      Alert.alert('Sucesso', 'Transação registrada!')
 
       handleBottomSheetClose()
       Keyboard.dismiss()
 
-      setAmount("")
-      setType("up")
+      setAmount('')
+      setType('up')
     } catch (error) {
       console.log(error)
     }
