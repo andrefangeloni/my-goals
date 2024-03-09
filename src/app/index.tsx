@@ -14,12 +14,11 @@ import { Goals, GoalsProps } from '@/components/Goals'
 import { Transactions, TransactionsProps } from '@/components/Transactions'
 
 import { useGoalRepository } from '@/database/useGoalRepository'
-
-// UTILS
-import { mocks } from '@/utils/mocks'
+import { useTransactionRepository } from '@/database/useTransactionRepository'
 
 export default function Home() {
   const useGoal = useGoalRepository()
+  const useTransaction = useTransactionRepository()
 
   // LISTS
   const [transactions, setTransactions] = useState<TransactionsProps>([])
@@ -36,6 +35,15 @@ export default function Home() {
 
   function handleDetails(id: string) {
     router.navigate('/details/' + id)
+  }
+
+  async function fetchGoals() {
+    try {
+      const response = useGoal.all()
+      setGoals(response)
+    } catch (error) {
+      console.log(error)
+    }
   }
 
   async function handleCreate() {
@@ -57,24 +65,17 @@ export default function Home() {
 
       setName('')
       setTotal('')
+
+      fetchGoals()
     } catch (error) {
       Alert.alert('Erro', 'Não foi possível cadastrar.')
       console.log(error)
     }
   }
 
-  async function fetchGoals() {
-    try {
-      const response = useGoal.all()
-      setGoals(response)
-    } catch (error) {
-      console.log(error)
-    }
-  }
-
   async function fetchTransactions() {
     try {
-      const response = mocks.transactions
+      const response = useTransaction.findLatest()
 
       setTransactions(
         response.map((item) => ({
